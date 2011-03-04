@@ -1,0 +1,64 @@
+= rTar
+
+NOTE: This project has been dicontinued. See IMPORTANT notice below.
+
+== OVERVIEW
+
+rTar is a package format based on tar. But it follows a structural pattern
+of recursion to allow efficent cherry picking of data from within an archive.
+
+The idea is as follows. Given a directory structure:
+
+  foo/
+    f.txt
+    g/
+      a.txt
+      b.txt
+    h/
+      c.txt
+      d.txt
+  
+The archive would work from the bottom up, transition to...
+
+  a/
+    f.txt
+    g/
+      a.txt.gz
+      b.txt.gz
+    h/
+      c.txt.gz
+      d.txt.gz
+
+Then...
+
+  foo/
+    f.txt.gz
+    g.tar.gz
+    h.tar.gz
+
+And finally...
+
+  foo.tar.gz
+
+So at every level in the directory structure we have a new archive, and each
+piece can be uncompresses separately without uncompress other parts and an 
+equal level.
+
+== IMPORTANT
+
+rTar has never been fully developer becuase it was realizes that nearly the
+same thing can be achieved using standard command line tools. For instance:
+
+  $ gzip -r foo
+
+Can recusively compress every file with the foo directory and it's subdirectory.
+That's half way home to way rTar was seeking to do. The next step is a little
+tricker, but it simply requires descending to the bottom of the directory and
+tarballing every directory on the way up. I am not sure how to do this off hand
+but I best a good shell coder could do it in a few lines of code --and the
+decompressor would be just as effective.
+
+So the bottom line is this. rTar could easily be written as a shell command
+in a few dozen lines of code at most. Moreove the overall usefulness of this
+library is probably pretty low. So the Ruby project has been dicontinued.
+

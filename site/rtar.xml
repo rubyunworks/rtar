@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="layout.xsl" type="text/xsl" ?>
+
+<content>
+
+<img style="padding: 0 10px; float: right;" src="../images/rtar.jpg" />
+
+<h1>rtar</h1>
+
+<p style="color: red"> IMPORTANT rTar is still in early stages of development. Becuase of this
+the following documentation might not refect the actualy state of functionailty.</p>
+
+<h2>Recursive Archival</h2>
+
+<p><code>rtar</code> is a package format for compressed archives.
+It is essentially a tar file, but with a stardardized recursive schema for
+subcompression. The subcompression format can use any compression algorithm.
+The current rtar implementation (written in Ruby) only supports gzip however.
+In sum, rtar is an alternative to .tar.gz that is suited to applications
+requiring selective decompression of an archive.</p>
+
+
+<h2>Feature Highlights</h2>
+
+<ul>
+  <li>Drillable decompression --decompress specific paths within the archive.</li>
+  <li>Features are provided with negligable overhead at ~100K and up.</li>
+  <li>Capable of supporting a variety of compression algorithms.</li>
+  <li>Trusted computing with package signitures [coming soon]</li>
+  <li>Compressed source packages are requirable by Ruby using Roll.</li>
+</ul>
+
+<h2>Requirements</h2>
+
+<p>rtar has only one external dependency. It requires
+<a href="facets.rubyforge.org">Facets</a> for it's Console::Command library.
+rtar also depends on Austin Ziegler's Archive::Tar::Minitar library, but this
+has been included in the rtar distribution as a vendor lib.</p>
+
+<p>Of course rtar requires <b>Ruby</b> 1.8 or higher.</p>
+
+
+<h2>Who Developed This?</h2>
+
+<p>rtar was written by Trans (aka Thomas Sawyer).</p>
+
+
+<h2>For General Use</h2>
+
+<p>Using a rtar is increadibly easy. If you've ever used a compression tool
+before, like tar, then you  already have a good idea how to use rtar.</p>
+
+<p>Let try it on the demo folder provided with the rtar distriution.
+In a shell console navigate to rtar's demo folder. You'll find it in the
+rtar source package. Have have a look at its contents.</p>
+
+  <pre>
+    % cd rtar-0.4
+    % cd demo
+    % ls
+    demo_rtar
+  </pre>
+
+<p>The <code>demo_rtar</code> folder it just a silly example of a ruby project.
+Take a look inside the folder and you'll see a typical project layout, albiet
+with a couple odd files in it.</p>
+
+  <pre>
+    lib/
+      demp_rtar/
+        tryme.rb
+    meta/
+      data
+    web/
+      index.html
+      rtarlobster.jpg
+    Lorem_ipsum.txt.gz
+  </pre>
+
+<p>Now lets compress it with rtar.</p>
+
+  <pre>
+    % rtar --pack demo_rtar
+  </pre>
+
+<p>rtar reads in the folder contents and creates a new package.</p>
+
+  <pre>
+    % ls
+    demo_rtar demo_rtar.rtar
+  </pre>
+
+<p>Unpacking an archive is just as easy.</p>
+
+  <pre>
+    % rtar --unpack demo_rtar
+  </pre>
+
+<h2>Archival Format</h2>
+
+<p>If you have an archive browser application, you can use it to
+look at the rtar file. As the name suggests, rtar uses tar for it's container.
+Presently it only supports gzip for compression, so any standard archive
+manager can peal back the first layer. (You may need to teach your
+system to treat a .rtar file like it were a .tar.gz though).</p>
+
+<p>Inside you will notice the first layer of contents match the
+first layer of contents inside the demo_rtar folder itself.</p>
+
+  <pre>
+    lib.rtar
+    meta.rtar
+    web.rtar
+    Lorem_ipsum.txt.gz
+  </pre>
+
+<p>If you drill down furhter into a "subcompression" you will see
+that the same pattern follows all the way through the archive.
+--hence a *recursive* archive.</p>
+
+<p><i>NOTE: Additional features related to the selectively adding
+files to an archive and cherry picking files out of an archive
+are planned, but implementation isn't complete yet.</i></p>
+
+<!--
+<h2>For Ruby Developers</h2>
+
+<p>To use a rtar archive like Java uses jar files, the first thing
+you need is <a href="http://roll.rubyforge.org.">Roll</a>. Roll
+is a package management system that brings version management to
+Ruby libraries without being tied to a packaging system.</p>
+
+<p>In addition you will need to make sure you have a metadata.yaml file
+inthe projkect's data directory. This files is used to store information
+that will be needed to make sense of the package. Be sure to read
+the Roll documentation to understand how this works. Note, the meta/
+files are also used by other tools, like <a href="reap.rubyforge.org">Reap</a>
+and <a href="sow.rubyforge.org">Sow</a>.</p>
+
+<p>Your *distributable* project should follow the general conventions for
+any Ruby project. The typical project layout looks something like this.</p>
+
+    <pre>
+    demo_rtar/
+      bin/
+        ...
+      conf/
+        demo_rtar/
+          metadata.yaml
+      data/
+        demo_rtar/
+          ...
+      lib/
+        demo_rtar/
+          ...
+    </pre>
+
+<p>You can learn more about the conventional layout at <a href="setup.html">TODO</a>.</p>
+
+<p>We emphisis "distributable" because you can work on a project in a non-convential
+layout just so long as it is either rearranged to a conventional layout before
+packaging, or instructions are provided in the metadata so Roll can take into account
+the alternate arrangement itself.</p>
+
+
+<h2>rtar and gem</h2>
+
+<p>This section is more invloved when we consider usig rtar as compressed libraries.
+So we will leave that to other documentation. However it's interesting to consider
+that RubyGems could use rtar in place of there current tar format. The rtar format is a
+general solution that serves the requirements of their current special format,
+which was inspired by debian's own package format.</p>
+
+-->
+
+<h2>rtar vs. tar</h2>
+
+<p>rtar is a compliment to tar. It is  essentially the <i>contrapositive</i>
+of a .tar.gz (or other subcompression), it delivers the beneifts of these tar
+formats with added accessablity and potentially low memory consumption.</p>
+
+<p>rtar's distict advantage is in it's ability to drill-down into an archive,
+decompressing only the specific parts of an archive required. This is a boon
+to memory consumption. It makes it easy to retrive metadata from a package
+with out decompressing the whole lot of it --which can be very large sometimes!</p>
+
+</content>
+

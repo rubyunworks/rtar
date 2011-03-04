@@ -1,0 +1,84 @@
+#!/usr/bin/env ruby
+
+require 'proutils/rtar'
+require 'getoptlong'
+
+module ProUtils
+module Bin
+
+  class Rtar
+    VERSION = '0.4.0'
+
+    ###
+    def initialize
+      $VERBOSE = false
+      $FORCE   = false
+    end
+
+    ###
+    def optparse
+      opts = GetoptLong.new(
+        [ '--pack'   , '-f', GetoptLong::REQUIRED_ARGUMENT ],
+        [ '--unpack' , '-x', GetoptLong::REQUIRED_ARGUMENT ],
+        [ '--list'   , '-l', GetoptLong::REQUIRED_ARGUMENT ],
+
+        [ '--force'  , '-f', GetoptLong::NO_ARGUMENT ],
+        [ '--verbose', '-v', GetoptLong::NO_ARGUMENT ],
+        [ '--help'   , '-h', GetoptLong::NO_ARGUMENT ]
+      )
+      opts.each do |key, val|
+        case key
+        when '--help'
+          @mode = nil
+        when '--pack'
+          @mode = :pack
+          @file = val
+        when '--unpack'
+          @mode = :unpack
+          @file = val
+        when '--list'
+          @mode = :list
+          @file << val
+        when '--verbose'
+          $VERBOSE = true
+        when '--force'
+          $FORCE = true
+        end
+      end
+    end
+
+    ### Run Command
+    def execute
+      begin
+        case @mode
+        when :pack
+          rpkg = Rtar.new
+          rpkg.pack(@file)
+        when :unpack
+          rpkg = Rtar.new
+          rpkg.unpack(@file)
+        when :list
+          rpkg = Rtar.new
+          rpkg.list(@file)
+        else
+          puts HELP
+        end
+      rescue => err
+        puts Rtar::Errors.__send__(err)
+      end
+    end
+
+HELP = <<-END
+  rtar v#{VERSION}
+
+  Usage:
+    rtar [command] <directory>
+END
+
+  end
+
+end
+end
+
+ProUtils::Bin::Rtar.new.execute
+
